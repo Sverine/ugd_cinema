@@ -1,0 +1,98 @@
+/*CREATION OF DATABASE*/
+CREATE DATABASE IF NOT EXISTS UGD DEFAULT CHARACTER SET = 'utf8mb4' DEFAULT COLLATE = 'utf8mb4_general_ci';
+
+GRANT ALL PRIVILEGES ON UGD.* TO 'admin'@'localhost';
+GRANT SELECT ON UGD.* TO 'viewer'@'localhost';
+FLUSH PRIVILEGES;
+
+
+/*CREATION OF TABLE: CINEMA*/
+CREATE TABLE UGD.cinema (
+	id INT(11) auto_increment NOT NULL,
+	name VARCHAR(50) NOT NULL,
+	address VARCHAR(250) NOT NULL,
+	telephone INT(10) NULL,
+    admin_by INT(11),
+	PRIMARY KEY (id)
+)
+ENGINE=InnoDB;
+
+
+/*CREATION OF TABLE: EMPLOYEE*/
+CREATE TABLE UGD.employee (
+	id INT(11) auto_increment NOT NULL,
+	firstName VARCHAR(100) NOT NULL,
+	lastName VARCHAR(100) NOT NULL,
+	email VARCHAR(250) NOT NULL,
+	password CHAR(60) NOT NULL,
+    works_for INT(11) NOT NULL,
+
+	PRIMARY KEY (id)
+)
+ENGINE=InnoDB;
+ALTER TABLE UGD.employee ADD FOREIGN KEY (works_for) REFERENCES UGD.cinema(id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ONCE THE EMPLOYEE TABLE IS CREATED, I CAN DECLARE THE FOREIGN KEY OF THE CINEMA TABLE==>
+ALTER TABLE UGD.cinema ADD FOREIGN KEY (admin_by) REFERENCES UGD.employee(id);
+
+/*CREATION OF TABLE: price*/
+CREATE TABLE UGD.price (
+	id INT(11) auto_increment NOT NULL,
+	name VARCHAR(50) NOT NULL,
+	price DECIMAL(4,2) NOT NULL,
+	PRIMARY KEY (id)
+)
+ENGINE=InnoDB;
+
+/*CREATION OF TABLE: CLIENT*/
+CREATE TABLE UGD.client (
+	id INT(11) auto_increment NOT NULL,
+	PRIMARY KEY (id)
+)
+ENGINE=InnoDB;
+
+/*CREATION OF TABLE: ROOM*/
+CREATE TABLE UGD.room (
+	id INT(11) auto_increment NOT NULL,
+	name VARCHAR(100),
+	numberOfSeats INT(4) NOT NULL,
+	cinema_id INT(11) NULL,
+	PRIMARY KEY (id)
+)
+ENGINE=InnoDB;
+ALTER TABLE UGD.room ADD FOREIGN KEY (cinema_id) REFERENCES UGD.cinema(id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+/*CREATION OF TABLE: MOVIE*/
+CREATE TABLE UGD.movie (
+	id INT(11) auto_increment NOT NULL,
+	title VARCHAR(100) NOT NULL,
+	duration INT(4) NOT NULL,
+	PRIMARY KEY (id)
+)
+ENGINE=InnoDB;
+
+/*CREATION OF TABLE: session*/
+CREATE TABLE UGD.session (
+    id INT(11) auto_increment NOT NULL,
+    date DATETIME NOT NULL,
+	room_id INT(11) NOT NULL,
+	movie_id INT(11) NOT NULL,
+    PRIMARY KEY (id)
+)
+ENGINE=InnoDB;
+ALTER TABLE UGD.session ADD FOREIGN KEY (room_id) REFERENCES UGD.room(id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE UGD.session ADD FOREIGN KEY (movie_id) REFERENCES UGD.movie(id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+/*CREATION OF TABLE: RESERVATION*/
+CREATE TABLE UGD.reservation (
+	id INT(11) auto_increment NOT NULL,
+	dateReservation DATETIME DEFAULT NOW() NOT NULL,
+    payment_method VARCHAR(50) NOT NULL,
+	client_id INT(11) NOT NULL,
+	session_id INT(11) NOT NULL,
+	PRIMARY KEY (id)
+)
+ENGINE=InnoDB;
+ALTER TABLE UGD.reservation ADD FOREIGN KEY (client_id) REFERENCES UGD.client(id);
+ALTER TABLE UGD.reservation ADD FOREIGN KEY (session_id) REFERENCES UGD.session(id);
